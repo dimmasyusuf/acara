@@ -1,4 +1,6 @@
+import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
+import { Button } from '../ui/button';
 
 export default function Header() {
   return (
@@ -12,6 +14,26 @@ export default function Header() {
             acara
           </h1>
         </Link>
+        <div className="flex gap-2">
+          <SignedIn>
+            <UserButton
+              afterSignOutUrl="/"
+              appearance={{
+                elements: {
+                  avatarBox: {
+                    width: '40px',
+                    height: '40px',
+                  },
+                },
+              }}
+            />
+          </SignedIn>
+          <SignedOut>
+            <Button asChild>
+              <Link href="/sign-in">Login</Link>
+            </Button>
+          </SignedOut>
+        </div>
       </nav>
     </header>
   );
