@@ -8,7 +8,7 @@ export default function RootLayout({
   return (
     <div className="max-w-screen-xl mx-auto">
       <Header />
-      <main>{children}</main>
+      <main className="p-4 mt-8">{children}</main>
     </div>
   );
 }
