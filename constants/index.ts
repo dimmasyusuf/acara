@@ -1,4 +1,4 @@
-const headerLinks = [
+export const headerLinks = [
   {
     label: 'Home',
     route: '/',
@@ -13,4 +13,15 @@ const headerLinks = [
   },
 ];
 
-export { headerLinks };
+export const eventDefaultValues = {
+  title: '',
+  description: '',
+  location: '',
+  imageUrl: '',
+  startDateTime: new Date(),
+  endDateTime: new Date(),
+  categoryId: '',
+  price: '',
+  isFree: false,
+  url: '',
+};
