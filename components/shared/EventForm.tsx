@@ -29,6 +29,10 @@ import { Checkbox } from '../ui/checkbox';
 import { CalendarIcon, Link2Icon, SewingPinIcon } from '@radix-ui/react-icons';
 import { RiMoneyDollarCircleLine } from 'react-icons/ri';
 
+import { useUploadThing } from '@/lib/uploadthing';
+import { useRouter } from 'next/navigation';
+import { createEvent } from '@/lib/actions/event.actions';
+
 type EventFormProps = {
   userId: string;
   type: 'Create' | 'Update';
@@ -37,14 +41,42 @@ type EventFormProps = {
 export default function EventForm({ userId, type }: EventFormProps) {
   const [files, setFiles] = useState<File[]>([]);
   const initialValues = eventDefaultValues;
+  const { startUpload } = useUploadThing('imageUploader');
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof eventFormSchema>>({
     resolver: zodResolver(eventFormSchema),
     defaultValues: initialValues,
   });
 
-  function onSubmit(values: z.infer<typeof eventFormSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof eventFormSchema>) {
+    let uploadedImageUrl = values.imageUrl;
+
+    if (files.length > 0) {
+      const uploadedImages = await startUpload(files);
+
+      if (!uploadedImages) {
+        return;
+      }
+
+      uploadedImageUrl = uploadedImages[0].url;
+    }
+
+    if (type === 'Create') {
+      try {
+        const newEvent = await createEvent({
+          event: { ...values, imageUrl: uploadedImageUrl },
+          userId,
+          path: '/profile',
+        });
+        if (newEvent) {
+          form.reset();
+          router.push(`/events/${newEvent._id}`);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
   }
 
   return (
@@ -86,6 +118,7 @@ export default function EventForm({ userId, type }: EventFormProps) {
             )}
           />
         </div>
+
         <div className="flex flex-col md:flex-row gap-4">
           <FormField
             control={form.control}
@@ -202,6 +235,7 @@ export default function EventForm({ userId, type }: EventFormProps) {
             )}
           />
         </div>
+
         <div className="flex flex-col md:flex-row gap-4">
           <FormField
             control={form.control}
@@ -209,15 +243,15 @@ export default function EventForm({ userId, type }: EventFormProps) {
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormControl>
-                  <div className="flex items-center w-full">
-                    <div className="flex items-center justify-center rounded-s-md h-9 w-9 border border-input border-e-0">
+                  <div className="flex items-center w-full border border-input rounded-md">
+                    <div className="flex items-center justify-center rounded-s-md h-9 w-9">
                       <RiMoneyDollarCircleLine className="w-5 h-5 text-muted-foreground" />
                     </div>
                     <div className="flex gap-4 items-center w-full">
                       <Input
                         type="number"
                         placeholder="Price"
-                        className="rounded-s-none"
+                        className="rounded-s-none rounded-e-none border-y-0"
                         {...field}
                       />
                       <FormField
@@ -226,14 +260,18 @@ export default function EventForm({ userId, type }: EventFormProps) {
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-4 px-2 py-1">
                                 <label
                                   htmlFor="isFree"
                                   className="whitespace-nowrap"
                                 >
                                   Free Ticket
                                 </label>
-                                <Checkbox id="isFree" />
+                                <Checkbox
+                                  onCheckedChange={field.onChange}
+                                  checked={field.value}
+                                  id="isFree"
+                                />
                               </div>
                             </FormControl>
                             <FormMessage />
@@ -269,6 +307,7 @@ export default function EventForm({ userId, type }: EventFormProps) {
             )}
           />
         </div>
+
         <Button
           type="submit"
           size="lg"

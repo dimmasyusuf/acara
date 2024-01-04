@@ -18,9 +18,13 @@ import {
 } from '@/components/ui/alert-dialog';
 
 import { ICategory } from '@/lib/models/category.model';
-import { startTransition, useState } from 'react';
+import { startTransition, useEffect, useState } from 'react';
 import { Input } from '../ui/input';
 import { PlusCircledIcon } from '@radix-ui/react-icons';
+import {
+  createCategory,
+  getAllCategories,
+} from '@/lib/actions/category.actions';
 
 type DropdownProps = {
   value?: string;
@@ -31,7 +35,21 @@ export default function Dropdown({ onChangeHandler, value }: DropdownProps) {
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [newCategory, setNewCategory] = useState<string>('');
 
-  const handleAddCategory = () => {};
+  const handleAddCategory = () => {
+    createCategory({
+      categoryName: newCategory.trim(),
+    }).then((category) => setCategories((prev) => [...prev, category]));
+  };
+
+  useEffect(() => {
+    const getCategories = async () => {
+      const categoryList = await getAllCategories();
+
+      categoryList && setCategories(categoryList as ICategory[]);
+    };
+
+    getCategories();
+  }, []);
 
   return (
     <Select
@@ -49,14 +67,14 @@ export default function Dropdown({ onChangeHandler, value }: DropdownProps) {
           categories.map((category) => (
             <SelectItem
               key={category._id}
-              value={category.name}
+              value={category._id}
             >
               {category.name}
             </SelectItem>
           ))}
 
         <AlertDialog>
-          <AlertDialogTrigger className="flex items-center gap-2 w-full py-1.5 rounded-md pl-2 pr-8 text-sm">
+          <AlertDialogTrigger className="bg-primary text-primary-foreground hover:bg-primary/90 flex items-center gap-2 w-full py-1.5 rounded-md pl-2 pr-8 text-sm mt-2">
             <PlusCircledIcon />
             Create Category
           </AlertDialogTrigger>

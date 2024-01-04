@@ -20,10 +20,15 @@ export default function NavItems() {
               size="lg"
               className={`${
                 isActive && 'font-bold'
-              } "w-full justify-start pl-2 sm:px-3"`}
+              } "w-full justify-start pl-2 sm:px-4 sm:justify-center"`}
               asChild
             >
-              <Link href={link.route}>{link.label}</Link>
+              <Link
+                href={link.route}
+                className="w-full"
+              >
+                {link.label}
+              </Link>
             </Button>
           </li>
         );

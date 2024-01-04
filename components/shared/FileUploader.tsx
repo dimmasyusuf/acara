@@ -8,6 +8,7 @@ import { convertFileToUrl } from '@/lib/utils';
 import { Button } from '../ui/button';
 import Image from 'next/image';
 import { RiUploadCloud2Fill } from 'react-icons/ri';
+import { AspectRatio } from '@radix-ui/react-aspect-ratio';
 
 type FileUploadProps = {
   imageUrl: string;
@@ -34,13 +35,15 @@ export default function FileUploader({
     <div {...getRootProps()}>
       <input {...getInputProps()} />
       {imageUrl ? (
-        <div className="flex items-center justify-center h-72 bg-cover rounded-md border border-input">
-          <Image
-            src={imageUrl}
-            alt="Event image"
-            width={288}
-            height={288}
-          />
+        <div className="flex items-center justify-center h-full bg-cover rounded-md border border-input w-full p-2">
+          <AspectRatio ratio={16 / 9}>
+            <Image
+              src={imageUrl}
+              alt="Event image"
+              className="object-cover rounded-md"
+              fill
+            />
+          </AspectRatio>
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center rounded-md border border-input h-72">
