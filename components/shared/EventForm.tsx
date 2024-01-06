@@ -31,16 +31,31 @@ import { RiMoneyDollarCircleLine } from 'react-icons/ri';
 
 import { useUploadThing } from '@/lib/uploadthing';
 import { useRouter } from 'next/navigation';
-import { createEvent } from '@/lib/actions/event.actions';
+import { createEvent, updateEvent } from '@/lib/actions/event.actions';
+import { IEvent } from '@/lib/models/event.model';
 
 type EventFormProps = {
   userId: string;
   type: 'Create' | 'Update';
+  event?: IEvent;
+  eventId?: string;
 };
 
-export default function EventForm({ userId, type }: EventFormProps) {
+export default function EventForm({
+  userId,
+  type,
+  event,
+  eventId,
+}: EventFormProps) {
   const [files, setFiles] = useState<File[]>([]);
-  const initialValues = eventDefaultValues;
+  const initialValues =
+    event && type === 'Update'
+      ? {
+          ...event,
+          startDateTime: new Date(event.startDateTime),
+          endDateTime: new Date(event.endDateTime),
+        }
+      : eventDefaultValues;
   const { startUpload } = useUploadThing('imageUploader');
   const router = useRouter();
 
@@ -72,6 +87,28 @@ export default function EventForm({ userId, type }: EventFormProps) {
         if (newEvent) {
           form.reset();
           router.push(`/events/${newEvent._id}`);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    if (type === 'Update') {
+      if (!eventId) {
+        router.back();
+        return;
+      }
+
+      try {
+        const updatedEvent = await updateEvent({
+          userId,
+          event: { ...values, imageUrl: uploadedImageUrl, _id: eventId },
+          path: `/events/${eventId}`,
+        });
+
+        if (updatedEvent) {
+          form.reset();
+          router.push(`/events/${updatedEvent._id}`);
         }
       } catch (error) {
         console.log(error);
@@ -189,7 +226,7 @@ export default function EventForm({ userId, type }: EventFormProps) {
                       <CalendarIcon className="w-5 h-5 text-muted-foreground" />
                     </div>
                     <div className="flex h-9 w-full rounded-e-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground gap-4 items-center">
-                      <p>Start Date:</p>
+                      <p className="whitespace-nowrap">Start Date:</p>
                       <DatePicker
                         selected={field.value}
                         onChange={(date: Date) => field.onChange(date)}
@@ -197,7 +234,7 @@ export default function EventForm({ userId, type }: EventFormProps) {
                         timeInputLabel="Time:"
                         dateFormat="MM/dd/yyyy h:mm aa"
                         wrapperClassName="datePicker"
-                        className="px-3 py-1"
+                        className="py-1"
                       />
                     </div>
                   </div>
@@ -217,7 +254,7 @@ export default function EventForm({ userId, type }: EventFormProps) {
                       <CalendarIcon className="w-5 h-5 text-muted-foreground" />
                     </div>
                     <div className="flex h-9 w-full rounded-e-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground gap-4 items-center">
-                      <p>End Date:</p>
+                      <p className="whitespace-nowrap">End Date:</p>
                       <DatePicker
                         selected={field.value}
                         onChange={(date: Date) => field.onChange(date)}
@@ -225,7 +262,7 @@ export default function EventForm({ userId, type }: EventFormProps) {
                         timeInputLabel="Time:"
                         dateFormat="MM/dd/yyyy h:mm aa"
                         wrapperClassName="datePicker"
-                        className="px-3 py-1"
+                        className="py-1"
                       />
                     </div>
                   </div>
@@ -251,7 +288,7 @@ export default function EventForm({ userId, type }: EventFormProps) {
                       <Input
                         type="number"
                         placeholder="Price"
-                        className="rounded-s-none rounded-e-none border-y-0"
+                        className="rounded-s-none rounded-e-none border-y-0 border-e-0"
                         {...field}
                       />
                       <FormField
@@ -260,10 +297,10 @@ export default function EventForm({ userId, type }: EventFormProps) {
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <div className="flex items-center gap-4 px-2 py-1">
+                              <div className="flex items-center gap-2 px-2 py-1">
                                 <label
                                   htmlFor="isFree"
-                                  className="whitespace-nowrap"
+                                  className="whitespace-nowrap text-sm text-muted-foreground"
                                 >
                                   Free Ticket
                                 </label>
