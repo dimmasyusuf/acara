@@ -14,7 +14,7 @@ export default async function Home() {
     <>
       <Hero />
       <section className="flex flex-col">
-        <h3 className="font-bold text-2xl mb-4">Popular Events</h3>
+        <h3 className="font-bold text-2xl mb-4">Upcoming Events</h3>
         <div className="flex justify-between items-center p-4">
           <p>Search</p>
           <p>Filter</p>

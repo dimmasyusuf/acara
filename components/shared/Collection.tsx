@@ -24,7 +24,7 @@ export default function Collection({
 }: CollectionProps) {
   return (
     <>
-      {data.length > 1 ? (
+      {data.length >= 1 ? (
         <div className="flex flex-col items-center gap-10">
           <ul className="grid w-full grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {data.map((event) => {
@@ -47,7 +47,7 @@ export default function Collection({
           </ul>
         </div>
       ) : (
-        <div className="flex flex-col gap-2 items-center p-4">
+        <div className="flex flex-col gap-2 items-center justify-center h-64">
           <h3 className="font-bold text-xl">{emptyTitle}</h3>
           <p className="font-medium text-sm">{emptyStateSubtext}</p>
         </div>

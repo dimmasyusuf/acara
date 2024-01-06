@@ -1,12 +1,13 @@
 'use server';
 
-import { GetAllEventsParams } from './../../types/index';
+import { DeleteEventParams, GetAllEventsParams } from './../../types/index';
 import { CreateEventParams } from '@/types';
 import { handleError } from '../utils';
 import { connectToDatabase } from '../database';
 import User from '../models/user.model';
 import Event from '../models/event.model';
 import Category from '../models/category.model';
+import { revalidatePath } from 'next/cache';
 
 const populateEvent = async (query: any) => {
   return query
@@ -84,6 +85,18 @@ export const getAllEvents = async ({
       data: JSON.parse(JSON.stringify(events)),
       totalPages: Math.ceil(eventsCount / limit),
     };
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const deleteEvent = async ({ eventId, path }: DeleteEventParams) => {
+  try {
+    await connectToDatabase();
+
+    const deletedEvent = await populateEvent(Event.findByIdAndDelete(eventId));
+
+    if (deletedEvent) revalidatePath(path);
   } catch (error) {
     handleError(error);
   }

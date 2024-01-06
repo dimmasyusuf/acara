@@ -5,6 +5,7 @@ import Image from 'next/image';
 import moment from 'moment';
 import { auth } from '@clerk/nextjs';
 import { ArrowRightIcon, Pencil2Icon } from '@radix-ui/react-icons';
+import DeleteConfirmation from './DeleteConfirmation';
 
 type CardProps = {
   event: IEvent;
@@ -32,13 +33,15 @@ export default function Card({ event, hasOrderLink, hidePrice }: CardProps) {
       </Link>
 
       {isEventCreator && !hidePrice && (
-        <div className="absolute top-2 right-2 flex flex-col gap-4 rounded-md bg-white p-2 shadow-sm transition-all">
+        <div className="absolute top-2 right-2 flex flex-col gap-4 rounded-md bg-white p-1.5 shadow-sm transition-all">
           <Link
             href={`/events/${event._id}/update`}
             className="cursor-pointer"
           >
-            <Pencil2Icon className="w-5 h-5" />
+            <Pencil2Icon className="w-5 h-5 hover:text-muted-foreground" />
           </Link>
+
+          <DeleteConfirmation eventId={event._id} />
         </div>
       )}
 
@@ -61,13 +64,15 @@ export default function Card({ event, hasOrderLink, hidePrice }: CardProps) {
           <p className="font-medium text-sm text-muted-foreground">
             {event.organizer.firstName} {event.organizer.lastName}
           </p>
-          <Link
-            href={`/orders?eventId=${event._id}`}
-            className="flex gap-2 items-center"
-          >
-            <p className="text-sm">Order Details</p>
-            <ArrowRightIcon className="w-4 h-4" />
-          </Link>
+          {hasOrderLink && (
+            <Link
+              href={`/orders?eventId=${event._id}`}
+              className="flex gap-2 items-center"
+            >
+              <p className="text-sm">Order Details</p>
+              <ArrowRightIcon className="w-4 h-4" />
+            </Link>
+          )}
         </div>
       </div>
     </div>
