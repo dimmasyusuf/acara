@@ -1,6 +1,10 @@
 'use server';
 
-import { DeleteEventParams, GetAllEventsParams } from './../../types/index';
+import {
+  DeleteEventParams,
+  GetAllEventsParams,
+  UpdateEventParams,
+} from './../../types/index';
 import { CreateEventParams } from '@/types';
 import { handleError } from '../utils';
 import { connectToDatabase } from '../database';
@@ -45,7 +49,7 @@ export const createEvent = async ({
   }
 };
 
-export const getEventByid = async (eventId: string) => {
+export const getEventById = async (eventId: string) => {
   try {
     await connectToDatabase();
 
@@ -97,6 +101,34 @@ export const deleteEvent = async ({ eventId, path }: DeleteEventParams) => {
     const deletedEvent = await populateEvent(Event.findByIdAndDelete(eventId));
 
     if (deletedEvent) revalidatePath(path);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const updateEvent = async ({
+  userId,
+  event,
+  path,
+}: UpdateEventParams) => {
+  try {
+    await connectToDatabase();
+
+    const eventToUpdate = await Event.findById(event._id);
+
+    if (!eventToUpdate || eventToUpdate.organizer.toHexString() !== userId) {
+      throw new Error('Event not found');
+    }
+
+    const updatedEvent = await Event.findByIdAndUpdate(
+      event._id,
+      { ...event, category: event.categoryId },
+      { new: true }
+    );
+
+    revalidatePath(path);
+
+    return JSON.parse(JSON.stringify(updatedEvent));
   } catch (error) {
     handleError(error);
   }

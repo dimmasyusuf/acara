@@ -1,6 +1,6 @@
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Button } from '@/components/ui/button';
-import { getEventByid } from '@/lib/actions/event.actions';
+import { getEventById } from '@/lib/actions/event.actions';
 import { SearchParamProps } from '@/types';
 import { CalendarIcon } from '@radix-ui/react-icons';
 import Image from 'next/image';
@@ -11,7 +11,7 @@ import { Avatar, AvatarImage } from '@/components/ui/avatar';
 export default async function EventDetails({
   params: { id },
 }: SearchParamProps) {
-  const event = await getEventByid(id);
+  const event = await getEventById(id);
 
   return (
     <section className="flex flex-col max-w-screen-lg mx-auto">
