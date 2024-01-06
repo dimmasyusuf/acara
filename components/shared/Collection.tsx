@@ -47,7 +47,7 @@ export default function Collection({
           </ul>
         </div>
       ) : (
-        <div className="flex flex-col gap-2 items-center justify-center h-64">
+        <div className="flex flex-col gap-2 items-center justify-center h-64 w-full">
           <h3 className="font-bold text-xl">{emptyTitle}</h3>
           <p className="font-medium text-sm">{emptyStateSubtext}</p>
         </div>
